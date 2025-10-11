@@ -1,5 +1,5 @@
 #修改40行的TNAME: NEWIFI3 中的NEWIFI3为你需要编译的型号，注意名称要与trunk/configs/templates/目录下的名字相同
-name: 新三NEWIFI3
+name: 新三NEWIFI3-vb1980
 
 on: 
   workflow_dispatch:
