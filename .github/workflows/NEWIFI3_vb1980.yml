@@ -58,9 +58,6 @@ jobs:
       run: |
         cd /opt/padavan/NEWIFI3/
         sh install_Setconfig.sh
-        #
-        cd /opt/padavan/mt7603-4.1.2.1/
-        sh install_wifi.sh
 
     - name: Build Firmware
       env:
