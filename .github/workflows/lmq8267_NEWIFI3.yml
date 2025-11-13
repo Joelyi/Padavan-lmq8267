@@ -41,6 +41,7 @@ env:
   TOOLCHAIN_URL: https://github.com/Yh793/Padavan-build/raw/master/mipsel-linux-uclibc.tar.xz
   WORK_PATH: /opt/rt-n56u
   TNAME: NEWIFI3
+  KERNEL: 3.4
   TZ: Asia/Shanghai
   
 jobs:
