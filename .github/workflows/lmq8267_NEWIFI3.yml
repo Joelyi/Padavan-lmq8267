@@ -88,7 +88,7 @@ jobs:
         if: github.event.inputs.config == 'true'
         run: |
           cp -f $TNAME/$TNAME.config $WORK_PATH/trunk/configs/templates/$TNAME.config
-          cp -f "${ROOTDIR}/defaults.h" "${DESTDIR}/trunk/user/shared/defaults.h"
+          cp -f $TNAME/defaults.h $WORK_PATH/trunk/user/shared/defaults.h
           #cd $WORK_PATH/trunk/tools
           #sed -i "s#1.15.2#1.21.1#g" ./Makefile
           #sed -i "s#https://gomirrors.org/dl/go#https://dl.google.com/go#g" ./Makefile
