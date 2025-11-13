@@ -1,8 +1,8 @@
 ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
-ccflags-y = -I$(src)/../mt7603_wifi/include \
-		-I$(src)/../mt7603_wifi/ate/include
+ccflags-y = -I$(src)/../mt76x3/include \
+		-I$(src)/../mt76x3/ate/include
 DRV_NAME = mt76x3_ap
-RT_WIFI_DIR = ../mt7603_wifi
+RT_WIFI_DIR = ../mt76x3
 
 else
 ccflags-y = -Idrivers/net/wireless/ralink/mt76x3/include \
@@ -13,7 +13,7 @@ ccflags-y = -Idrivers/net/wireless/ralink/mt76x3/include \
 WIFI_HEAD_GEN  = $(shell make -C drivers/net/wireless/rlt_wifi RT28xx_MODE=AP CHIPSET=mt7603e EE_TYPE=$(CONFIG_MT7603E_PA_LNA) sdk_build_tools >/dev/null)
 
 DRV_NAME = mt76x3_ap
-RT_WIFI_DIR = ../mt7603_wifi
+RT_WIFI_DIR = ../mt76x3
 endif
 
 $(info Build MT76X3E: $(DRV_NAME) )
