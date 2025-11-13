@@ -103,9 +103,10 @@ jobs:
       - name: Recovery wifi files download from remote
         if: github.event.inputs.wifi == 'true'
         run: |
-          cd wifi
-          sh install_wifi.sh
-
+          sudo rm -rf $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3
+          sudo rm -rf $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3_ap
+          cp -rf mt7603-4.1.2.1/. $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X
+          echo "复制wifi文件结束" 
 
       - name: Build Firmware
         run: |
