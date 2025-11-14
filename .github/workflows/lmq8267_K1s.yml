@@ -64,12 +64,11 @@ jobs:
           #mkdir -p toolchain-3.4.x
           #tar -xvf mipsel-linux-uclibc.tar.xz -C toolchain-3.4.x
           mkdir -p /opt/images/
-          mkdir -p $WORK_PATH/trunk/configs/boards/$TNAME
 
-      #- name: newly build boards
-      #  run: |
-      #    cd $WORK_PATH/trunk/configs/boards
-      #    mkdir $TNAME
+      - name: newly build boards
+        run: |
+          cd $WORK_PATH/trunk/configs/boards
+          mkdir $TNAME
 
       - name: Recovery Padavan files download from remote
         if: github.event.inputs.padavanbin == 'true'
