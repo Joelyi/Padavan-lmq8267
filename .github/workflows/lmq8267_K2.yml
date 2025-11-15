@@ -239,7 +239,7 @@ jobs:
           echo "CONFIG_FIRMWARE_INCLUDE_UVC=n" >> .config
 
           ##包含 USB-HID 模块。约 0.2MB
-          echo "CONFIG_FIRMWARE_INCLUDE_HID=y" >> .config
+          echo "CONFIG_FIRMWARE_INCLUDE_HID=n" >> .config
 
           ##包含 USB-Serial 模块（例如 pl2303）。约 0.03MB
           echo "CONFIG_FIRMWARE_INCLUDE_SERIAL=n" >> .config
@@ -272,7 +272,7 @@ jobs:
           echo "CONFIG_FIRMWARE_INCLUDE_NTFS_3G=n" >> .config
 
           ##包含 LPR 打印机守护程序。约 0.12MB
-          echo "CONFIG_FIRMWARE_INCLUDE_LPRD=y" >> .config
+          echo "CONFIG_FIRMWARE_INCLUDE_LPRD=n" >> .config
  
           ##包含 USB-over-Ethernet 打印机守护程序。约 0.05MB
           echo "CONFIG_FIRMWARE_INCLUDE_U2EC=n" >> .config
