@@ -105,6 +105,11 @@ jobs:
           cp -rf theme/. $WORK_PATH/trunk/user/www/n56u_ribbon_fixed
           echo "复制主题文件结束"  
 
+      - name: Grant permissions
+        run: |
+          cd $WORK_PATH
+          sudo chmod 777 trunk
+        
       - name: Build Firmware
         run: |
           cd /opt/rt-n56u/trunk
