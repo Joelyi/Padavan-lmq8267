@@ -65,6 +65,13 @@ jobs:
           #tar -xvf mipsel-linux-uclibc.tar.xz -C toolchain-3.4.x
           mkdir -p /opt/images/
 
+      - name: Set busybox's version to compile
+        run: |
+          cd $WORK_PATH/trunk/user/busybox
+          sed -i "s/SRC_NAME=busybox.*/SRC_NAME=busybox-${{ github.event.inputs.busyboxver }}/g" ./Makefile
+          cd $WORK_PATH/trunk
+          sed -i "s/busybox_id=.*/busybox_id=\"${{ github.event.inputs.busyboxver }}\"/g" ./build_firmware_modify
+
       - name: newly build boards
         run: |
           cd $WORK_PATH/trunk/configs/boards
