@@ -108,7 +108,7 @@ jobs:
       - name: Grant permissions
         run: |
           cd $WORK_PATH
-          sudo chmod 777 trunk
+          sudo chmod -R 777 trunk
         
       - name: Build Firmware
         run: |
