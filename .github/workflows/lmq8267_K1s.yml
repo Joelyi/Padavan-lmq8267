@@ -279,7 +279,7 @@ jobs:
           echo "CONFIG_FIRMWARE_INCLUDE_IFB=n" >> .config
 
           ##包含 IPSet 工具和内核模块。约 0.4MB
-          #echo "CONFIG_FIRMWARE_INCLUDE_IPSET=y" >> .config
+          echo "CONFIG_FIRMWARE_INCLUDE_IPSET=y" >> .config
 
           ##包含 NFSv3 服务器。约 0.6MB  已删除 /trunk/user/httpd/common.h
           echo "CONFIG_FIRMWARE_INCLUDE_NFSD=n" >> .config
