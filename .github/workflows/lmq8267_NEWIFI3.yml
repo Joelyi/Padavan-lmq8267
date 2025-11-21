@@ -118,6 +118,11 @@ jobs:
           cp -rf mt7603-4.1.2.1/mt76x3/eeprom $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3
           echo "复制wifi文件结束" 
 
+      - name: Grant permissions
+        run: |
+          cd $WORK_PATH
+          sudo chmod -R 777 trunk
+
       - name: Build Firmware
         run: |
           cd /opt/rt-n56u/trunk
