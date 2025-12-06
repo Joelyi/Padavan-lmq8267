@@ -4,10 +4,10 @@ name: Build lmq8267_NEWIFI3 repo
 on:
   workflow_dispatch:
     inputs:
-      firmwarever:
-        description: 'firmware''s version'
+      name:
+        description: "Build Padavan"
         required: true
-        default: '20201015'
+        default: "build"
       busyboxver:
         type: choice
         description: 'busybox''s version'
@@ -69,6 +69,12 @@ jobs:
           #mkdir -p toolchain-3.4.x
           #tar -xvf mipsel-linux-uclibc.tar.xz -C toolchain-3.4.x
           mkdir -p /opt/images/
+
+          ##### 修改内存空间和 storage空间18m
+          sed -i 's/0x200000/0x1200000/g' /opt/rt-n56u/trunk/configs/boards/NEWIFI3/kernel-3.4.x.config
+          sed -i 's/size_etc="6M"/size_etc="18M"/g' /opt/rt-n56u/trunk/user/scripts/dev_init.sh
+          sed -i 's/size_tmp="24M"/size_tmp="120M"/g' /opt/rt-n56u/trunk/user/scripts/dev_init.sh
+          sed -i 's/mtd_part_size=65536/mtd_part_size=18874368/g' /opt/rt-n56u/trunk/user/scripts/mtd_storage.sh
 
       - name: Set busybox's version to compile
         run: |
