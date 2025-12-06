@@ -70,12 +70,6 @@ jobs:
           #tar -xvf mipsel-linux-uclibc.tar.xz -C toolchain-3.4.x
           mkdir -p /opt/images/
 
-          ##### 修改内存空间和 storage空间18m
-          sed -i 's/0x200000/0x1200000/g' /opt/rt-n56u/trunk/configs/boards/NEWIFI3/kernel-3.4.x.config
-          sed -i 's/size_etc="6M"/size_etc="18M"/g' /opt/rt-n56u/trunk/user/scripts/dev_init.sh
-          sed -i 's/size_tmp="24M"/size_tmp="120M"/g' /opt/rt-n56u/trunk/user/scripts/dev_init.sh
-          sed -i 's/mtd_part_size=65536/mtd_part_size=18874368/g' /opt/rt-n56u/trunk/user/scripts/mtd_storage.sh
-
       - name: Set busybox's version to compile
         run: |
           cd $WORK_PATH/trunk/user/busybox
@@ -114,8 +108,6 @@ jobs:
           sudo rm -rf $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3
           sudo rm -rf $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3_ap
           cp -rf mt7603-4.1.2.1/. $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X
-          #sudo rm -rf $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3/eeprom
-          #cp -rf mt7603-4.1.2.1/mt76x3/eeprom $WORK_PATH/trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3
           echo "复制wifi文件结束" 
 
       - name: Grant permissions
