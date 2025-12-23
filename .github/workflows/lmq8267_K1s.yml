@@ -105,7 +105,7 @@ jobs:
         run: |
           sudo rm -rf $WORK_PATH/trunk/user/www/n56u_ribbon_fixed/bootstrap
           sudo rm -rf $WORK_PATH/trunk/user/www/n56u_ribbon_fixed/images
-          cp -rf theme/. $WORK_PATH/trunk/user/www/n56u_ribbon_fixed
+          cp -rf phicomm-theme/. $WORK_PATH/trunk/user/www/n56u_ribbon_fixed
           echo "复制主题文件结束"  
 
       - name: Grant permissions
