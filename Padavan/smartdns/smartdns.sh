@@ -1,53 +1,40 @@
 #!/bin/sh
-
-action="$1"
-storage_Path="/etc/storage"
-smartdns_Bin="/usr/bin/smartdns"
-smartdns_Ini="$storage_Path/smartdns_conf.ini"
-smartdns_Conf="$storage_Path/smartdns.conf"
-smartdns_tmp_Conf="$storage_Path/smartdns_tmp.conf"
-smartdns_address_Conf="$storage_Path/smartdns_address.conf"
-smartdns_blacklist_Conf="$storage_Path/smartdns_blacklist-ip.conf"
-smartdns_whitelist_Conf="$storage_Path/smartdns_whitelist-ip.conf"
-smartdns_custom_Conf="$storage_Path/smartdns_custom.conf"
-dnsmasq_Conf="$storage_Path/dnsmasq/dnsmasq.conf"
-chn_Route="$storage_Path/chinadns/chnroute.txt"
-
-sdns_enable=$(nvram get sdns_enable)
-snds_name=$(nvram get snds_name)
-sdns_port=$(nvram get sdns_port)
-sdns_tcp_server=$(nvram get sdns_tcp_server)
-sdns_ipv6_server=$(nvram get sdns_ipv6_server)
-snds_ip_change=$(nvram get snds_ip_change)
-sdns_ipv6=$(nvram get sdns_ipv6)
-sdns_www=$(nvram get sdns_www)
-sdns_exp=$(nvram get sdns_exp)
-snds_redirect=$(nvram get snds_redirect)
-sdns_cache_persist=$(nvram get sdns_cache_persist)
-snds_cache=$(nvram get snds_cache)
-sdns_ttl=$(nvram get sdns_ttl)
-sdns_ttl_min=$(nvram get sdns_ttl_min)
-sdns_ttl_max=$(nvram get sdns_ttl_max)
-sdnse_enable=$(nvram get sdnse_enable)
-sdnse_port=$(nvram get sdnse_port)
-sdnse_tcp=$(nvram get sdnse_tcp)
-sdnse_speed=$(nvram get sdnse_speed)
-sdns_speed=$(nvram get sdns_speed)
-sdnse_name=$(nvram get sdnse_name)
-sdnse_address=$(nvram get sdnse_address)
-sdns_address=$(nvram get sdns_address)
-sdnse_ns=$(nvram get sdnse_ns)
-sdns_ns=$(nvram get sdns_ns)
-sdnse_ipset=$(nvram get sdnse_ipset)
-sdns_ipset=$(nvram get sdns_ipset)
-sdnse_as=$(nvram get sdnse_as)
-sdns_as=$(nvram get sdns_as)
-sdnse_ipc=$(nvram get sdnse_ipc)
-sdnse_cache=$(nvram get sdnse_cache)
-ss_white=$(nvram get ss_white)
-ss_black=$(nvram get ss_black)
-sdns_coredump=$(nvram get sdns_coredump)
-
+# Copyright (C) 2018 Nick Peng (pymumu@gmail.com)
+# Copyright (C) 2019 chongshengB
+SMARTDNS_CONF_DIR="/etc/storage"
+SMARTDNS_CONF="$SMARTDNS_CONF_DIR/smartdns.conf"
+ADDRESS_CONF="$SMARTDNS_CONF_DIR/smartdns_address.conf"
+BLACKLIST_IP_CONF="$SMARTDNS_CONF_DIR/smartdns_blacklist-ip.conf"
+WHITELIST_IP_CONF="$SMARTDNS_CONF_DIR/smartdns_whitelist-ip.conf"
+CUSTOM_CONF="$SMARTDNS_CONF_DIR/smartdns_custom.conf"
+smartdns_file="/usr/bin/smartdns"
+sdns_enable=`nvram get sdns_enable`
+snds_name=`nvram get snds_name`
+sdns_port=`nvram get sdns_port`
+sdns_tcp_server=`nvram get sdns_tcp_server`
+sdns_ipv6_server=`nvram get sdns_ipv6_server`
+snds_ip_change=`nvram get snds_ip_change`
+snds_ipv6=`nvram get snds_ipv6`
+sdns_www=`nvram get sdns_www`
+sdns_exp=`nvram get sdns_exp`
+snds_redirect=`nvram get snds_redirect`
+snds_cache=`nvram get snds_cache`
+sdns_ttl=`nvram get sdns_ttl`
+sdns_ttl_min=`nvram get sdns_ttl_min`
+sdns_ttl_max=`nvram get sdns_ttl_max`
+sdnse_enable=`nvram get sdnse_enable`
+sdnse_port=`nvram get sdnse_port`
+sdnse_tcp=`nvram get sdnse_tcp`
+sdnse_speed=`nvram get sdnse_speed`
+sdnse_name=`nvram get sdnse_name`
+sdnse_address=`nvram get sdnse_address`
+sdnse_ns=`nvram get sdnse_ns`
+sdnse_ipset=`nvram get sdnse_ipset`
+sdnse_as=`nvram get sdnse_as`
+sdnse_ipc=`nvram get sdnse_ipc`
+sdnse_cache=`nvram get sdnse_cache`
+ss_white=`nvram get ss_white`
+ss_black=`nvram get ss_black`
 
 check_ss(){
 if [ $(nvram get ss_enable) = 1 ] && [ $(nvram get ss_run_mode) = "router" ] && [ $(nvram get pdnsd_enable) = 0 ]; then
@@ -72,187 +59,155 @@ get_tz()
 	fi	
 	SET_TZ=$tz
 }
-
-Get_sdns_conf () {
-    # 【】
-    :>"$smartdns_tmp_Conf"
-    echo "server-name $snds_name" >> "$smartdns_tmp_Conf"
-    ARGS_1=""
-    if [ "$sdns_address" = "1" ] ; then
-     ARGS_1="$ARGS_1 -no-rule-addr"
-    fi
-    if [ "$sdns_ns" = "1" ] ; then
-        ARGS_1="$ARGS_1 -no-rule-nameserver"
-    fi
-    if [ "$sdns_ipset" = "1" ] ; then
-        ARGS_1="$ARGS_1 -no-rule-ipset"
-    fi
-    if [ "$sdns_speed" = "1" ] ; then
-        ARGS_1="$ARGS_1 -no-speed-check"
-    fi
-    if [ "$sdns_as" = "1" ] ; then
-        ARGS_1="$ARGS_1 -no-rule-soa"
-    fi
-    if [ "$sdns_ipv6_server" = "1" ] ; then
-        echo "bind" "[::]:$sdns_port $ARGS_1" >> "$smartdns_tmp_Conf"
-    else
-        echo "bind" ":$sdns_port $ARGS_1" >> "$smartdns_tmp_Conf"
-    fi
-    if [ "$sdns_tcp_server" = "1" ] ; then
-        if [ "$sdns_ipv6_server" = "1" ] ; then
-            echo "bind-tcp" "[::]:$sdns_port $ARGS_1" >> "$smartdns_tmp_Conf"
-        else
-            echo "bind-tcp" ":$sdns_port $ARGS_1" >> "$smartdns_tmp_Conf"
-        fi
-    fi
-    # 读取 第二服务器 配置
-    Get_sdnse_conf
-    echo "cache-size $snds_cache" >> "$smartdns_tmp_Conf"
-    echo "rr-ttl $sdns_ttl" >> "$smartdns_tmp_Conf"
-    echo "rr-ttl-min $sdns_ttl_min" >> "$smartdns_tmp_Conf"
-    echo "rr-ttl-max $sdns_ttl_max" >> "$smartdns_tmp_Conf"
-    echo "tcp-idle-time 120" >> "$smartdns_tmp_Conf"
-    if [ "$snds_ip_change" -eq 1 ] ;then
-        echo "dualstack-ip-selection yes" >> "$smartdns_tmp_Conf"
-        echo "dualstack-ip-selection-threshold $(nvram get snds_ip_change_time)" >> "$smartdns_tmp_Conf"
-    elif [ "$sdns_ipv6" -eq 1 ] ;then
-        echo "force-AAAA-SOA yes" >> "$smartdns_tmp_Conf"
-    fi
-    if [ "$sdns_cache_persist" -eq 1 ] && [ "$snds_cache" -gt 0 ] ;then
-        echo "cache-persist yes" >> "$smartdns_tmp_Conf"
-        echo "cache-file /etc/storage/smartdns.cache" >> "$smartdns_tmp_Conf"    
-    else
-        echo "cache-persist no" >> "$smartdns_tmp_Conf"
-    fi
-    if [ "$sdns_www" -eq 1 ] && [ " $snds_cache" -gt 0 ] ;then
-        echo "prefetch-domain yes" >> "$smartdns_tmp_Conf"
-    else
-        echo "prefetch-domain no" >> "$smartdns_tmp_Conf"
-    fi
-    if [ "$sdns_exp" -eq 1 ] && [ "$snds_cache" -gt 0 ] ;then
-        echo "serve-expired yes" >> "$smartdns_tmp_Conf"
-    else
-        echo "serve-expired no" >> "$smartdns_tmp_Conf"
-    fi
-#    echo "log-level warn" >> "$smartdns_tmp_Conf"
-    listnum=$(nvram get sdnss_staticnum_x)
-    for i in $(seq 1 "$listnum")
-    do
-        j=$(expr "$i" - 1)
-        sdnss_enable=$(nvram get sdnss_enable_x"$j")
-        if  [ "$sdnss_enable" -eq 1 ] ; then
-            sdnss_name=$(nvram get sdnss_name_x"$j")
-            sdnss_ip=$(nvram get sdnss_ip_x"$j")
-            sdnss_port=$(nvram get sdnss_port_x"$j")
-            sdnss_type=$(nvram get sdnss_type_x"$j")
-            sdnss_ipc=$(nvram get sdnss_ipc_x"$j")
-            sdnss_named=$(nvram get sdnss_named_x"$j")
-            sdnss_non=$(nvram get sdnss_non_x"$j")
-            sdnss_ipset=$(nvram get sdnss_ipset_x"$j")
-            ipc=""
-            named=""
-            non=""
-            sipset=""
-            if [ "$sdnss_ipc" = "whitelist" ] ; then
-                ipc="-whitelist-ip"
-            elif [ "$sdnss_ipc" = "blacklist" ] ; then
-                ipc="-blacklist-ip"
-            fi
-            if [ "$sdnss_named"x != x ] ; then
-                named="-group $sdnss_named"
-            fi
-            if [ "$sdnss_non" = "1" ] ; then
-                non="-exclude-default-group"
-            fi
-            if [ "$sdnss_type" = "tcp" ] ; then
-                if [ "$sdnss_port" = "default" ] ; then
-                    echo "server-tcp $sdnss_ip:53 $ipc $named $non" >> "$smartdns_tmp_Conf"
-                else
-                    echo "server-tcp $sdnss_ip:$sdnss_port $ipc $named $non" >> "$smartdns_tmp_Conf"
-                fi
-            elif [ "$sdnss_type" = "udp" ] ; then
-                if [ "$sdnss_port" = "default" ] ; then
-                    echo "server $sdnss_ip:53 $ipc $named $non" >> "$smartdns_tmp_Conf"
-                else
-                    echo "server $sdnss_ip:$sdnss_port $ipc $named $non" >> "$smartdns_tmp_Conf"
-                fi
-            elif [ "$sdnss_type" = "tls" ] ; then
-                if [ "$sdnss_port" = "default" ] ; then
-                    echo "server-tls $sdnss_ip:853 $ipc $named $non" >> "$smartdns_tmp_Conf"
-                else
-                    echo "server-tls $sdnss_ip:$sdnss_port $ipc $named $non" >> "$smartdns_tmp_Conf"
-                fi
-            elif [ "$sdnss_type" = "https" ] ; then
-                if [ "$sdnss_port" = "default" ] ; then
-                    echo "server-https $sdnss_ip:443 $ipc $named $non" >> "$smartdns_tmp_Conf"
-                else
-                    echo "server-https $sdnss_ip:$sdnss_port $ipc $named $non" >> "$smartdns_tmp_Conf"
-                fi    
-            fi
-            if [ "$sdnss_ipset"x != x ] ; then
-                # 调用 check_ip_Addr 函数，检测 ip 是否合规
-                Check_ip_addr "$sdnss_ipset"
-                if [ "$?" = "1" ] ;then
-                    echo "ipset /$sdnss_ipset/smartdns" >> "$smartdns_tmp_Conf"
-                else
-                    ipset add smartdns "$sdnss_ipset" 2>/dev/null
-                fi
-            fi
-        fi
-    done
-    if [ "$ss_white" = "1" ] && [ -f "$chn_Route" ] ; then
-        :>/tmp/whitelist.conf
-        logger -t "SmartDNS" "开始处理白名单IP"
-        awk '{printf("whitelist-ip %s\n", $1, $1 )}' "$chn_Route" >> /tmp/whitelist.conf
-        echo "conf-file /tmp/whitelist.conf" >> "$smartdns_tmp_Conf"
-    fi
-    if [ "$ss_black" = "1" ] && [ -f "$chn_Route" ] ; then
-        :>/tmp/blacklist.conf
-        logger -t "SmartDNS" "开始处理黑名单IP"
-        awk '{printf("blacklist-ip %s\n", $1, $1 )}' "$chn_Route" >> /tmp/blacklist.conf
-        echo "conf-file /tmp/blacklist.conf" >> "$smartdns_tmp_Conf"
-    fi
+gensmartconf(){
+# 【】
+:>"$SMARTDNS_CONF"
+echo "server-name $snds_name" >> $SMARTDNS_CONF
+	if [ "$sdns_ipv6_server" = "1" ]; then
+		echo "bind" "[::]:$sdns_port" >> $SMARTDNS_CONF
+	else
+		echo "bind" ":$sdns_port" >> $SMARTDNS_CONF
+	fi
+	if [ "$sdns_tcp_server" = "1" ]; then
+		if [ "$sdns_ipv6_server" = "1" ]; then
+			echo "bind-tcp" "[::]:$sdns_port" >> $SMARTDNS_CONF
+		else
+			echo "bind-tcp" ":$sdns_port" >> $SMARTDNS_CONF
+		fi
+	fi
+gensdnssecond
+echo "cache-size $snds_cache" >> $SMARTDNS_CONF
+if [ $snds_ip_change -eq 1 ];then
+echo "dualstack-ip-selection yes" >> $SMARTDNS_CONF
+echo "dualstack-ip-selection-threshold $(nvram get snds_ip_change_time)" >> $SMARTDNS_CONF
+elif [ $snds_ipv6 -eq 1 ];then
+echo "force-AAAA-SOA yes" >> $SMARTDNS_CONF
+fi
+if [ $sdns_www -eq 1 ];then
+echo "prefetch-domain yes" >> $SMARTDNS_CONF
+else
+echo "prefetch-domain no" >> $SMARTDNS_CONF
+fi
+if [ $sdns_exp -eq 1 ];then
+echo "serve-expired yes" >> $SMARTDNS_CONF
+else
+echo "serve-expired no" >> $SMARTDNS_CONF
+fi
+echo "log-level info" >> $SMARTDNS_CONF
+listnum=`nvram get sdnss_staticnum_x`
+for i in $(seq 1 $listnum)
+do
+j=`expr $i - 1`
+sdnss_enable=`nvram get sdnss_enable_x$j`
+if  [ $sdnss_enable -eq 1 ]; then
+sdnss_name=`nvram get sdnss_name_x$j`
+sdnss_ip=`nvram get sdnss_ip_x$j`
+sdnss_port=`nvram get sdnss_port_x$j`
+sdnss_type=`nvram get sdnss_type_x$j`
+sdnss_ipc=`nvram get sdnss_ipc_x$j`
+sdnss_named=`nvram get sdnss_named_x$j`
+sdnss_non=`nvram get sdnss_non_x$j`
+sdnss_ipset=`nvram get sdnss_ipset_x$j`
+ipc=""
+named=""
+non=""
+sipset=""
+if [ $sdnss_ipc = "whitelist" ]; then
+ipc="-whitelist-ip"
+elif [ $sdnss_ipc = "blacklist" ]; then
+ipc="-blacklist-ip"
+fi
+if [ $sdnss_named != "" ]; then
+named="-group $sdnss_named"
+fi
+if [ $sdnss_non = "1" ]; then
+non="-exclude-default-group"
+fi
+if [ $sdnss_type = "tcp" ]; then
+if [ $sdnss_port = "default" ]; then
+echo "server-tcp $sdnss_ip:53 $ipc $named $non" >> $SMARTDNS_CONF
+else
+echo "server-tcp $sdnss_ip:$sdnss_port $ipc $named $non" >> $SMARTDNS_CONF
+fi
+elif [ $sdnss_type = "udp" ]; then
+if [ $sdnss_port = "default" ]; then
+echo "server $sdnss_ip:53 $ipc $named $non" >> $SMARTDNS_CONF
+else
+echo "server $sdnss_ip:$sdnss_port $ipc $named $non" >> $SMARTDNS_CONF
+fi
+elif [ $sdnss_type = "tls" ]; then
+if [ $sdnss_port = "default" ]; then
+echo "server-tls $sdnss_ip:53 $ipc $named $non" >> $SMARTDNS_CONF
+else
+echo "server-tls $sdnss_ip:$sdnss_port $ipc $named $non" >> $SMARTDNS_CONF
+fi
+elif [ $sdnss_type = "https" ]; then
+if [ $sdnss_port = "default" ]; then
+echo "server-https $sdnss_ip $ipc $named $non" >> $SMARTDNS_CONF
+fi	
+fi
+if [ $sdnss_ipset != "" ]; then
+#ipset add gfwlist $sdnss_ipset 2>/dev/null
+CheckIPAddr $sdnss_ipset
+if [ "$?" == "1" ];then
+echo "ipset /$sdnss_ipset/smartdns" >> $SMARTDNS_CONF
+else
+ipset add smartdns $sdnss_ipset 2>/dev/null
+fi
+fi	
+fi
+done
+if [ $ss_white = "1" ]; then
+rm -f /tmp/whitelist.conf
+logger -t "SmartDNS" "开始处理白名单IP"
+awk '{printf("whitelist-ip %s\n", $1, $1 )}' /etc/storage/chinadns/chnroute.txt >> /tmp/whitelist.conf
+echo "conf-file /tmp/whitelist.conf" >> $SMARTDNS_CONF
+fi
+if [ $ss_black = "1" ]; then
+rm -f /tmp/blacklist.conf
+logger -t "SmartDNS" "开始处理黑名单IP"
+awk '{printf("blacklist-ip %s\n", $1, $1 )}' /etc/storage/chinadns/chnroute.txt >> /tmp/blacklist.conf
+echo "conf-file /tmp/blacklist.conf" >> $SMARTDNS_CONF
+fi
 }
 
-
-Get_sdnse_conf () {
-    # 【】
-    if [ "$sdnse_enable" -eq 1 ] ; then
-    ARGS_2=""
-    ADDR=""
-    if [ "$sdnse_speed" = "1" ] ; then
-        ARGS_2="$ARGS_2 -no-speed-check"
-    fi
-    if [ -n "$sdnse_name" ] ; then
-        ARGS_2="$ARGS_2-group $sdnse_name"
-    fi
-    if [ "$sdnse_address" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-rule-addr"
-    fi
-    if [ "$sdnse_ns" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-rule-nameserver"
-    fi
-    if [ "$sdnse_ipset" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-rule-ipset"
-    fi
-    if [ "$sdnse_as" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-rule-soa"
-    fi
-    if [ "$sdnse_ipc" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-dualstack-selection"
-    fi
-    if [ "$sdnse_cache" = "1" ] ; then
-        ARGS_2="$ARGS_2-no-cache"
-    fi
-    if [ "$sdns_ipv6_server" = "1" ] ; then
-        ADDR="[::]"
-    else
-        ADDR=""
-    fi
-    echo "bind" "$ADDR:$sdnse_port $ARGS_2" >> "$smartdns_tmp_Conf"
-     if [ "$sdnse_tcp" = "1" ] ; then
-        echo "bind-tcp" "$ADDR:$sdnse_port $ARGS_2" >> "$smartdns_tmp_Conf"
-    fi
+gensdnssecond(){
+if  [ $sdnse_enable -eq 1 ]; then
+ARGS=""
+ADDR=""
+if [ "$sdnse_speed" = "1" ]; then
+	ARGS="$ARGS -no-speed-check"
+fi
+if [ ! -z "$sdnse_name" ]; then
+		ARGS="$ARGS -group $sdnse_name"
+	fi
+if [ "$sdnse_address" = "1" ]; then
+		ARGS="$ARGS -no-rule-addr"
+	fi
+	if [ "$sdnse_ns" = "1" ]; then
+		ARGS="$ARGS -no-rule-nameserver"
+	fi
+	if [ "$sdnse_ipset" = "1" ]; then
+		ARGS="$ARGS -no-rule-ipset"
+	fi
+	if [ "$sdnse_as" = "1" ]; then
+		ARGS="$ARGS -no-rule-soa"
+	fi
+	if [ "$sdnse_ipc" = "1" ]; then
+		ARGS="$ARGS -no-dualstack-selection"
+	fi
+	if [ "$sdnse_cache" = "1" ]; then
+		ARGS="$ARGS -no-cache"
+	fi
+	if [ "$sdns_ipv6_server" = "1" ]; then
+		ADDR="[::]"
+	else
+		ADDR=""
+	fi
+echo "bind" "$ADDR:$sdnse_port $ARGS" >> $SMARTDNS_CONF
+	if [ "$sdnse_tcp" = "1" ]; then
+		echo "bind-tcp" "$ADDR:$sdnse_port$ARGS" >> $SMARTDNS_CONF
+	fi
 fi
 }
 
@@ -332,15 +287,14 @@ logger -t "SmartDNS" "创建配置文件."
 ipset -N smartdns hash:net 2>/dev/null
 gensmartconf
 
-grep -v '^#' $smartdns_address_Conf | grep -v "^$" >> "$smartdns_tmp_Conf"
-grep -v '^#' $smartdns_blacklist_Conf | grep -v "^$" >> "$smartdns_tmp_Conf"
-grep -v '^#' $smartdns_whitelist_Conf | grep -v "^$" >> "$smartdns_tmp_Conf"
-grep -v '^#' $smartdns_custom_Conf | grep -v "^$" >> "$smartdns_tmp_Conf"
-sed -i '/my.router/d' "$smartdns_tmp_Conf"
-echo "domain-rules " "/my.router/ -c none -a $IPS4 -d no" >> "$smartdns_tmp_Conf"
-# 配置文件去重
-awk '!x[$0]++' "$smartdns_tmp_Conf" > "$smartdns_Conf"
-rm -f "$smartdns_tmp_Conf"
+grep -v '^#' $ADDRESS_CONF | grep -v "^$" >> $SMARTDNS_CONF
+grep -v '^#' $BLACKLIST_IP_CONF | grep -v "^$" >> $SMARTDNS_CONF
+grep -v '^#' $WHITELIST_IP_CONF | grep -v "^$" >> $SMARTDNS_CONF
+grep -v '^#' $CUSTOM_CONF | grep -v "^$" >> $SMARTDNS_CONF
+#grep -v ^! /tmp/whitelist.txt >> $SMARTDNS_CONF
+#rm -f /tmp/whitelist.txt
+#grep -v ^! /tmp/blacklist.txt >> $SMARTDNS_CONF
+#rm -f /tmp/blacklist.txt
 if [ "$sdns_coredump" = "1" ]; then
 		args="$args -S"
 	fi
@@ -413,4 +367,3 @@ stop)
 	echo "check"
 	;;
 esac
-Main
