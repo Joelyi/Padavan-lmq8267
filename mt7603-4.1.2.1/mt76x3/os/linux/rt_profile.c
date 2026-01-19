@@ -30,8 +30,8 @@
 #endif
 
 #if defined (CONFIG_RA_HW_NAT)  || defined (CONFIG_RA_HW_NAT_MODULE)
-#include "../net/nat/hw_nat/ra_nat.h"
-#include "../net/nat/hw_nat/frame_engine.h"
+#include "../../../../../net/nat/hw_nat/ra_nat.h"
+#include "../../../../../net/nat/hw_nat/frame_engine.h"
 #endif
 
 
@@ -643,11 +643,11 @@ INT get_dev_config_idx(RTMP_ADAPTER *pAd)
 	else if (IS_RT5392(pAd) || IS_MT76x0(pAd) || IS_MT76x2(pAd))
 		idx = 1;
 
-#if defined(CONFIG_FIRST_IF_MT7615E)
+#if defined(CONFIG_RT_FIRST_IF_MT7615E)
 	/* MT7615A (ra0) + MT7603(rai0) combination */
 	if (IS_MT7603E(pAd))
 		idx = 1;
-#endif /* defined(CONFIG_FIRST_IF_MT7603E) */
+#endif
 
 #endif /* defined(CONFIG_RT_FIRST_CARD) && defined(CONFIG_RT_SECOND_CARD) */
 
@@ -1235,8 +1235,6 @@ void announce_802_3_packet(
 			ra_sw_nat_hook_rx return 1 --> continue
 			ra_sw_nat_hook_rx return 0 --> FWD & without netif_rx
 		*/
-		int (*ra_sw_nat_hook_rx) (struct sk_buff * skb) = NULL;
-		int (*ra_sw_nat_hook_tx) (struct sk_buff * skb, int gmac_no) = NULL;
 		if (ra_sw_nat_hook_rx!= NULL)
 		{
 			unsigned int flags;
@@ -1246,6 +1244,7 @@ void announce_802_3_packet(
 			RTMP_IRQ_LOCK(&pAd->page_lock, flags);
 			if(ra_sw_nat_hook_rx(pRxPkt)) 
 			{
+				FOE_MAGIC_TAG(RTPKT_TO_OSPKT(pRxPkt)) = 0;
 				RtmpOsPktRcvHandle(pRxPkt);
 			}
 			RTMP_IRQ_UNLOCK(&pAd->page_lock, flags);
@@ -1826,13 +1825,6 @@ int RTMPSendPackets(
 
 	if (!pPacket)
 		return 0;
-#ifdef MAX_CONTINUOUS_TX_CNT
-	if (IS_OSEXPECTED_LENGTH(pkt_total_len)) {
-		pAd->tr_ststic.tx_pkt_from_os++;
-		pAd->tr_ststic.txpktdetect2s++;
-		pAd->tr_ststic.tx_pkt_len = pkt_total_len;
-	}
-#endif
 
 #ifdef WSC_NFC_SUPPORT
         {
@@ -2063,4 +2055,3 @@ VOID AP_WDS_KeyNameMakeUp(
 	snprintf(pKey, KeyMaxSize, "Wds%dKey", KeyId);
 }
 #endif /* WDS_SUPPORT */
-
